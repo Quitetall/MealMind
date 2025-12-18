@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>MealMind</title>
+  <style>
+    body { font-family: system-ui; max-width: 800px; margin: auto; padding: 20px; }
+    input, textarea, button { width: 100%; padding: 8px; margin-top: 8px; }
+    pre { background: #111; color: #0f0; padding: 12px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>MealMind</h1>
+
+  <input id="cal" placeholder="Calories/day" value="3000">
+  <input id="prot" placeholder="Protein/day" value="180">
+  <input id="meals" placeholder="Meals/day" value="4">
+  <input id="budget" placeholder="Weekly budget ($)" value="75">
+
+  <input id="include" placeholder="Include foods (comma separated)">
+  <input id="exclude" placeholder="Exclude foods (comma separated)">
+
+  <button onclick="go()">Generate</button>
+
+  <pre id="out"></pre>
+
+<script>
+async function go() {
+  const body = {
+    calories: +cal.value,
+    protein: +prot.value,
+    meals: +meals.value,
+    budget: +budget.value,
+    include: include.value.split(',').map(x=>x.trim()).filter(Boolean),
+    exclude: exclude.value.split(',').map(x=>x.trim()).filter(Boolean)
+  };
+
+  out.textContent = "Thinking...";
+  const r = await fetch("http://localhost:8000/mealplan", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(body)
+  });
+
+  out.textContent = JSON.stringify(await r.json(), null, 2);
+}
+</script>
+</body>
+</html>
