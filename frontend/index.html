@@ -1,49 +1,313 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>MealMind</title>
   <style>
-    body { font-family: system-ui; max-width: 800px; margin: auto; padding: 20px; }
-    input, textarea, button { width: 100%; padding: 8px; margin-top: 8px; }
-    pre { background: #111; color: #0f0; padding: 12px; overflow-x: auto; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .row label {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .row input,
+    .row select,
+    .row textarea {
+      flex: 2;
+      padding: 6px;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .toggle {
+      margin-bottom: 16px;
+    }
+
+    .advanced {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #ddd;
+    }
+
+    .section {
+      margin-top: 24px;
+    }
+
+    .section h2 {
+      margin-bottom: 8px;
+    }
+
+    .box {
+      background: #fafafa;
+      padding: 12px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    ul {
+      padding-left: 18px;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
+
+<div class="container">
   <h1>MealMind</h1>
+  <p>Cheap. Boring. Effective.</p>
 
-  <input id="cal" placeholder="Calories/day" value="3000">
-  <input id="prot" placeholder="Protein/day" value="180">
-  <input id="meals" placeholder="Meals/day" value="4">
-  <input id="budget" placeholder="Weekly budget ($)" value="75">
+  <!-- MODE TOGGLE -->
+  <div class="toggle">
+    <label>
+      <input type="checkbox" id="advancedToggle" />
+      Advanced Mode
+    </label>
+  </div>
 
-  <input id="include" placeholder="Include foods (comma separated)">
-  <input id="exclude" placeholder="Exclude foods (comma separated)">
+  <!-- SIMPLE INPUTS -->
+  <div id="simpleInputs">
+    <div class="row">
+      <label>Goal</label>
+      <select id="goal">
+        <option value="maintain">Maintain</option>
+        <option value="cut">Cut</option>
+        <option value="bulk">Bulk</option>
+      </select>
+    </div>
 
-  <button onclick="go()">Generate</button>
+    <div class="row">
+      <label>Sex</label>
+      <select id="sex">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </div>
 
-  <pre id="out"></pre>
+    <div class="row">
+      <label>Height (cm)</label>
+      <input id="height" type="number" value="175" />
+    </div>
+
+    <div class="row">
+      <label>Weight (kg)</label>
+      <input id="weight" type="number" value="70" />
+    </div>
+
+    <div class="row">
+      <label>Activity Level</label>
+      <select id="activity">
+        <option value="sedentary">Sedentary</option>
+        <option value="light">Light</option>
+        <option value="moderate" selected>Moderate</option>
+        <option value="very">Very Active</option>
+        <option value="athlete">Athlete</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label>Weekly Budget ($)</label>
+      <input id="budget" type="number" value="75" />
+    </div>
+
+    <div class="row">
+      <label>Meals per day</label>
+      <input id="mealsPerDay" type="number" value="4" />
+    </div>
+
+    <div class="row">
+      <label>Foods to exclude</label>
+      <textarea id="excludeFoods" placeholder="e.g. milk, peanuts"></textarea>
+    </div>
+  </div>
+
+  <!-- ADVANCED INPUTS -->
+  <div id="advancedInputs" class="advanced">
+    <div class="row">
+      <label>Age</label>
+      <input id="age" type="number" value="25" />
+    </div>
+
+    <div class="row">
+      <label>Body Fat %</label>
+      <input id="bodyfat" type="number" placeholder="optional" />
+    </div>
+
+    <div class="row">
+      <label>Target Rate</label>
+      <select id="rate">
+        <option value="slow">Slow</option>
+        <option value="moderate" selected>Moderate</option>
+        <option value="aggressive">Aggressive</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label>Explain Math</label>
+      <select id="explainMath">
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+    </div>
+  </div>
+
+  <button onclick="generate()">Generate Plan</button>
+
+  <!-- MATH OUTPUT -->
+  <div id="mathSection" class="section hidden">
+    <h2>Nutrition Math</h2>
+    <div class="box" id="mathOutput"></div>
+  </div>
+
+  <!-- PLAN OUTPUT -->
+  <div id="planSection" class="section hidden">
+    <h2>Meal Plan</h2>
+    <div class="box" id="planOutput"></div>
+  </div>
+
+  <!-- SHOPPING LIST -->
+  <div id="shoppingSection" class="section hidden">
+    <h2>Weekly Shopping List</h2>
+    <div class="box" id="shoppingOutput"></div>
+  </div>
+
+  <div class="footer-note">
+    Prices are estimates. Not medical advice. GPL-3.0.
+  </div>
+</div>
 
 <script>
-async function go() {
-  const body = {
-    calories: +cal.value,
-    protein: +prot.value,
-    meals: +meals.value,
-    budget: +budget.value,
-    include: include.value.split(',').map(x=>x.trim()).filter(Boolean),
-    exclude: exclude.value.split(',').map(x=>x.trim()).filter(Boolean)
-  };
+  const advancedToggle = document.getElementById("advancedToggle");
+  const advancedInputs = document.getElementById("advancedInputs");
 
-  out.textContent = "Thinking...";
-  const r = await fetch("http://localhost:8000/mealplan", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(body)
+  advancedToggle.addEventListener("change", () => {
+    advancedInputs.style.display = advancedToggle.checked ? "block" : "none";
   });
 
-  out.textContent = JSON.stringify(await r.json(), null, 2);
-}
+  async function generate() {
+    const payload = {
+      profile: {
+        sex: document.getElementById("sex").value,
+        height_cm: Number(document.getElementById("height").value),
+        weight_kg: Number(document.getElementById("weight").value),
+        age: Number(document.getElementById("age")?.value || 25),
+        body_fat_pct: document.getElementById("bodyfat").value || null
+      },
+      activity: {
+        level: document.getElementById("activity").value
+      },
+      goal: {
+        type: document.getElementById("goal").value,
+        rate: document.getElementById("rate")?.value || "moderate"
+      },
+      budget: {
+        weekly_budget_usd: Number(document.getElementById("budget").value)
+      },
+      logistics: {
+        meals_per_day: Number(document.getElementById("mealsPerDay").value)
+      },
+      food_constraints: {
+        exclude_foods: document.getElementById("excludeFoods").value
+          .split(",")
+          .map(f => f.trim())
+          .filter(Boolean)
+      },
+      preferences: {
+        explain_math: document.getElementById("explainMath")?.value === "true"
+      }
+    };
+
+    const res = await fetch("http://localhost:8000/mealplan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    renderMath(data.math);
+    renderPlan(data.plan);
+    renderShopping(data.weekly_shopping_list, data.weekly_total_cost_usd);
+  }
+
+  function renderMath(math) {
+    const el = document.getElementById("mathOutput");
+    el.innerHTML = `
+      Maintenance: ${math.tdee} kcal<br/>
+      Target: ${math.target_calories} kcal<br/>
+      Protein: ${math.macros.protein_g} g<br/>
+      Fat: ${math.macros.fat_g} g<br/>
+      Carbs: ${math.macros.carbs_g} g<br/>
+      Est. change: ${math.estimated_lbs_per_week} lb/week
+    `;
+    document.getElementById("mathSection").classList.remove("hidden");
+  }
+
+  function renderPlan(plan) {
+    const el = document.getElementById("planOutput");
+    el.innerHTML = plan.map(day =>
+      `<strong>Day ${day.day}</strong><ul>` +
+      day.meals.map(m =>
+        `<li>${m.ingredients.map(i => `${i.name} ${i.grams}g`).join(", ")}</li>`
+      ).join("") +
+      `</ul>`
+    ).join("");
+    document.getElementById("planSection").classList.remove("hidden");
+  }
+
+  function renderShopping(list, cost) {
+    const el = document.getElementById("shoppingOutput");
+    el.innerHTML =
+      `<ul>` +
+      list.map(i => `<li>${i.name}: ${i.grams} g</li>`).join("") +
+      `</ul><strong>Total: $${cost.toFixed(2)}</strong>`;
+    document.getElementById("shoppingSection").classList.remove("hidden");
+  }
 </script>
+
 </body>
 </html>
