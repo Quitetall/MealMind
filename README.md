@@ -7,3 +7,8 @@ Polished? Never.
 Functional? Always.
 
 GPL 3.0 btw.
+
+# How to Use
+1. Press the run.bat
+2. Idk man, you do you.
+3. Eat healthy.
